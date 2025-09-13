@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MTB Parks & Trails</title>
+    <meta name="description" content="Discover mountain bike parks and trails: downhill status, difficulty, location, and rider reviews." />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <h1>MTB Parks & Trails</h1>
+        <div class="header-actions">
+          <nav class="tabs" aria-label="View switch">
+            <button id="tabParks" class="tab active" data-tab="parks" aria-pressed="true">Parks</button>
+            <button id="tabTrails" class="tab" data-tab="trails" aria-pressed="false">Trails</button>
+          </nav>
+          <div class="spacer"></div>
+          <button id="addBtn" class="btn primary">Add Park/Trail</button>
+          <button id="adminBtn" class="btn" title="Review submissions">Review</button>
+          <button id="userBtn" class="btn">Sign in</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section id="filters" class="filters" aria-label="Filters">
+        <div class="filter-row">
+          <label>
+            <span class="label">Search</span>
+            <input id="q" type="search" placeholder="Search by name or location" />
+          </label>
+          <label>
+            <span class="label">Downhill</span>
+            <select id="downhill">
+              <option value="any">Any</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+          <label id="difficultyWrap">
+            <span class="label">Difficulty</span>
+            <select id="difficulty">
+              <option value="any">Any</option>
+              <option value="Green">Green</option>
+              <option value="Blue">Blue</option>
+              <option value="Black">Black</option>
+              <option value="Double Black">Double Black</option>
+            </select>
+          </label>
+          
+        </div>
+      </section>
+
+      <section aria-live="polite" aria-busy="false">
+        <div id="resultsMeta" class="results-meta">Results</div>
+        <ul id="results" class="card-list" role="list"></ul>
+      </section>
+    </main>
+
+    <dialog id="detailDialog" class="modal">
+      <form method="dialog" class="modal-header">
+        <h2 id="detailTitle"></h2>
+        <button class="icon-btn" aria-label="Close details">✕</button>
+      </form>
+      <div class="modal-body">
+        <div id="detailSummary" class="detail-summary"></div>
+        <div id="detailMeta" class="detail-meta"></div>
+        <div id="detailDescription" class="detail-description"></div>
+
+        <section class="reviews">
+          <h3>Reviews</h3>
+          <ul id="reviewList" class="review-list" role="list"></ul>
+          <div class="review-form">
+            <h4>Leave a review</h4>
+            <form id="reviewForm">
+              <div class="form-grid">
+                <label>
+                  <span class="label">Your name</span>
+                  <input id="reviewName" name="name" placeholder="Optional" />
+                </label>
+                <label>
+                  <span class="label">Rating</span>
+                  <select id="reviewRating" name="rating" required>
+                    <option value="">Select</option>
+                    <option value="5">5 - Excellent</option>
+                    <option value="4">4 - Great</option>
+                    <option value="3">3 - Good</option>
+                    <option value="2">2 - Fair</option>
+                    <option value="1">1 - Poor</option>
+                  </select>
+                </label>
+              </div>
+              <label>
+                <span class="label">Comment</span>
+                <textarea id="reviewComment" name="comment" rows="3" placeholder="Share your experience" required></textarea>
+              </label>
+              <div class="review-actions">
+                <button type="submit" class="btn primary">Submit Review</button>
+                <button type="button" id="clearReviewsBtn" class="btn danger outline">Clear My Reviews Here</button>
+              </div>
+            </form>
+          </div>
+        </section>
+      </div>
+    </dialog>
+
+    <dialog id="authDialog" class="modal">
+      <form method="dialog" class="modal-header">
+        <h2>Sign In</h2>
+        <button class="icon-btn" aria-label="Close auth">✕</button>
+      </form>
+      <div class="modal-body">
+        <form id="authForm">
+          <div class="form-grid">
+            <label>
+              <span class="label">Display name</span>
+              <input id="authName" required placeholder="e.g., Alex Rider" />
+            </label>
+            <label>
+              <span class="label">Email (optional)</span>
+              <input id="authEmail" type="email" placeholder="you@example.com" />
+            </label>
+          </div>
+          <div class="review-actions" style="margin-top:10px;">
+            <button type="submit" class="btn primary">Save</button>
+            <button type="button" id="signOutBtn" class="btn outline">Sign out</button>
+          </div>
+          <div class="muted" style="font-size:12px; margin-top:6px;">Local-only demo identity (stored in this browser).</div>
+        </form>
+      </div>
+    </dialog>
+
+    <dialog id="submitDialog" class="modal">
+      <form method="dialog" class="modal-header">
+        <h2>Submit New Park or Trail</h2>
+        <button class="icon-btn" aria-label="Close submit">✕</button>
+      </form>
+      <div class="modal-body">
+        <form id="submitForm">
+          <div class="form-grid">
+            <label>
+              <span class="label">Type</span>
+              <select id="submitType" required>
+                <option value="park">Park</option>
+                <option value="trail">Trail</option>
+              </select>
+            </label>
+            <label>
+              <span class="label">Downhill</span>
+              <select id="submitDownhill" required>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-grid">
+            <label>
+              <span class="label">Name</span>
+              <input id="submitName" required placeholder="e.g., Whistler Mountain Bike Park" />
+            </label>
+            <label id="submitDifficultyWrap" class="hidden">
+              <span class="label">Trail Difficulty</span>
+              <select id="submitDifficulty">
+                <option value="Green">Green</option>
+                <option value="Blue">Blue</option>
+                <option value="Black">Black</option>
+                <option value="Double Black">Double Black</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-grid">
+            <label id="submitLocationWrap" class="span-2">
+              <span class="label">Location</span>
+              <input id="submitLocation" required placeholder="City, Region, Country" />
+            </label>
+          </div>
+          <div id="submitTrailParkRow" class="form-grid hidden">
+            <label class="span-2">
+              <span class="label">Trail’s Park</span>
+              <select id="submitTrailPark"></select>
+            </label>
+          </div>
+          <div class="form-grid">
+            <label>
+              <span class="label">Length (km)</span>
+              <input id="submitLength" type="number" inputmode="decimal" step="any" min="0" placeholder="Optional (trails)" />
+            </label>
+            <label>
+              <span class="label">Elevation Drop (m)</span>
+              <input id="submitDrop" type="number" step="1" min="0" placeholder="Optional (trails)" />
+            </label>
+          </div>
+          <label>
+            <span class="label">Description</span>
+            <textarea id="submitDescription" rows="3" placeholder="Short description (optional)"></textarea>
+          </label>
+          <div class="muted" style="font-size:12px; margin-top:8px;">
+            Submissions are held for review. Approved items appear in the directory.
+          </div>
+          <div class="review-actions" style="margin-top:10px;">
+            <button type="submit" class="btn primary">Submit for Review</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
+    <dialog id="reviewDialog" class="modal">
+      <form method="dialog" class="modal-header">
+        <h2>Review Submissions</h2>
+        <button class="icon-btn" aria-label="Close review">✕</button>
+      </form>
+      <div class="modal-body">
+        <div id="reviewListPanel" class="review-queue"></div>
+        <div class="muted" style="font-size:12px;">Local-only demo: approvals persist in this browser.</div>
+      </div>
+    </dialog>
+
+    <footer class="site-footer">
+      <div class="container">
+        <small>Community-curated MTB parks and trails. Reviews are stored locally on your device.</small>
+      </div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+  </html>
